@@ -1,0 +1,9 @@
+This website uses lamejs 1.2.1 by Alex Zhukov and contributors.
+Project: https://github.com/zhuker/lamejs
+LAME project: https://lame.sourceforge.net
+Package license: GNU LGPL version 3 (see LGPL-3.0.txt and GPL-3.0.txt).
+Upstream LICENSE and legacy COPYING notices are also preserved here.
+Unmodified browser build: lame.min.js
+Original npm package, including source and build scripts: lamejs-1.2.1.tgz
+The encoder is loaded as a separate replaceable script by encoder-worker.js.
+No audio or analytics data is sent to an external server by this application.

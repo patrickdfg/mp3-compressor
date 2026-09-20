@@ -1,10 +1,36 @@
 # MP3 용량 줄이기
 
-MP3 파일 여러 개를 **48kbps**로 압축하는 한국어 데스크톱 프로그램입니다. 오디오 파일은 PC에서만 처리됩니다.
+MP3 파일 여러 개를 **48kbps**로 압축하는 한국어 웹사이트와 Windows 프로그램입니다. 웹 버전은 브라우저 안에서 처리하며, 오디오 파일을 서버로 전송하지 않습니다.
 
 > 48kbps는 비트레이트입니다. 파일 전체 용량을 48KB로 맞추는 기능은 아닙니다. 48kbps에서 1분은 약 360KB, 10분은 약 3.6MB입니다. 파일 헤더에 따라 실제 크기는 조금 달라집니다.
 
-## 사용 방법
+## 웹사이트 사용
+
+`docs/` 폴더에 설치 없이 사용하는 웹 버전이 있습니다.
+
+1. **MP3 파일 선택** 또는 끌어놓기로 파일을 추가합니다.
+2. 기본 **48kbps / 모노** 설정으로 **압축 시작**을 누릅니다.
+3. 파일별 **다운로드**를 눌러 압축 파일을 저장합니다.
+
+여러 파일, 진행률, 취소, 오류 후 재시도, 중복 파일명 방지, 원본이 더 작을 때 저장 생략을 지원합니다. 음질과 채널 설정은 아직 완료하지 않은 파일에 적용됩니다. 완료한 파일을 다른 설정으로 다시 압축하려면 목록에서 제거한 뒤 다시 추가하세요.
+
+파일당 최대 **50MB / 30분**, 출력 샘플레이트 **24kHz**입니다. 브라우저 메모리를 사용하므로 긴 파일은 PC에서 사용하는 것이 좋습니다. 새로고침하거나 탭을 닫으면 목록과 결과가 사라집니다. 스테레오를 선택해도 원본이 모노이면 모노를 유지합니다.
+
+### 로컬 웹 실행
+
+```powershell
+python -m http.server 5173 --bind 127.0.0.1 --directory docs
+```
+
+브라우저에서 `http://127.0.0.1:5173`을 엽니다. HTML 파일을 직접 두 번 클릭하면 브라우저 보안 제한으로 압축기가 작동하지 않을 수 있습니다.
+
+### 웹 배포
+
+정적 파일만으로 작동하므로 `docs/` 폴더를 정적 호스팅에 배포하면 됩니다. GitHub Pages에서는 **Settings → Pages → Deploy from a branch → main / docs**를 선택합니다. GitHub Free 계정은 저장소가 공개되어야 Pages를 사용할 수 있습니다. 비공개 저장소는 자동으로 공개하지 않습니다.
+
+오디오 디코딩은 Web Audio API, MP3 인코딩은 별도 Worker의 [lamejs 1.2.1](https://github.com/zhuker/lamejs)을 사용합니다. 라이브러리를 자체 호스팅하므로 외부 CDN을 호출하지 않습니다. 라이선스와 원본 소스 패키지는 `docs/vendor/`에 포함되어 있습니다.
+
+## Windows 프로그램 사용
 
 1. Python 3.10 이상과 [FFmpeg](https://ffmpeg.org/download.html)를 설치합니다. FFmpeg에는 `libmp3lame` 인코더가 필요합니다.
 2. `ffmpeg`를 PATH에 등록하거나 `ffmpeg.exe`를 `app.py`와 같은 폴더에 둡니다.
@@ -39,6 +65,7 @@ python compressor.py "첫째.mp3" "둘째.mp3" -b 48 --stereo -o "압축결과"
 
 ```powershell
 python -m unittest discover -s tests -v
+node --test tests/test_web_encoder.cjs
 python -m pip install -r requirements-build.txt
 python -m PyInstaller --noconfirm --clean --onefile --windowed --name MP3-Compressor app.py
 ```

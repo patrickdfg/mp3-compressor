@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="설치 없이 브라우저에서 MP3를 48kbps로 압축하세요. 오디오 파일은 서버로 전송되지 않습니다.">
+  <meta name="theme-color" content="#f6f5f1">
+  <title>MP3 가볍게 · 오디오 용량 줄이기</title>
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./style.css">
+  <script src="./app.js" defer></script>
+</head>
+<body>
+  <header class="topbar"><a class="brand" href="./"><span class="brand-icon" aria-hidden="true">≋</span> MP3 가볍게<span class="web-tag">WEB</span></a><span class="local-badge"><i></i> 내 기기에서만 처리</span></header>
+  <main>
+    <section class="intro">
+      <div><p class="eyebrow">SMALLER FILES. SAME MOMENTS.</p><h1>소리는 그대로,<br>용량은 <span>가볍게.</span></h1><p class="lead">녹음, 강의, 오디오를 간편하게 압축하세요.<br>설치 없이, 파일을 올리지 않고, 이 브라우저에서.</p><p class="quality-note">재생 내용과 길이는 유지되며, 압축하면 음질은 낮아집니다.</p></div>
+      <div class="illustration" aria-hidden="true"><div class="audio-card"><span>AUDIO / 48 KBPS</span><svg viewBox="0 0 300 90"><g stroke="currentColor" stroke-width="7" stroke-linecap="round"><path d="M12 39v12m16-24v36m16-45v54m16-33v12m16-39v66m16-78v90m16-72v54m16-39v24m16-45v66m16-81v90m16-63v36m16-24v12m16-33v54m16-63v72m16-51v30m16-24v18m16-36v54m16-39v24"/></g></svg><div><b>더 작게, 더 간편하게</b><span>MP3 → MP3</span></div></div><span class="orbit-chip">↓ 가벼워진 오디오</span></div>
+    </section>
+    <section class="workspace" aria-label="MP3 압축 도구">
+      <div class="workspace-heading"><h2>파일 압축하기</h2><span>01 선택 <b>→</b> 02 압축 <b>→</b> 03 다운로드</span></div>
+      <div id="drop-zone" class="drop-zone">
+        <div class="upload-icon" aria-hidden="true">↥</div><h3>MP3 파일을 여기에 놓으세요</h3><p>여러 파일을 한 번에 선택할 수 있어요</p><button id="choose" class="primary" type="button">MP3 파일 선택 <span aria-hidden="true">＋</span></button><input id="file-input" type="file" accept=".mp3,audio/mpeg" multiple hidden><small>MP3 · 파일당 최대 50MB · 최대 30분</small>
+      </div>
+      <div class="options"><div><label for="bitrate">압축 음질</label><select id="bitrate"><option value="32">32 kbps · 최소 용량</option><option value="48" selected>48 kbps · 음성 추천</option><option value="64">64 kbps</option><option value="96">96 kbps</option><option value="128">128 kbps · 높은 음질</option></select></div><div><label for="channels">오디오 채널</label><select id="channels"><option value="1">모노 · 음성용</option><option value="2">스테레오 · 음악용</option></select></div><p id="estimate">48kbps 기준<br><strong>1분 ≈ 360KB</strong></p></div>
+      <div id="notice" role="alert" hidden></div>
+      <section id="queue" class="queue" hidden aria-label="선택한 파일"><div class="queue-heading"><h3>선택한 파일 <span id="file-count">0</span></h3><button id="clear" class="text-button" type="button">목록 비우기</button></div><ul id="files"></ul><div class="batch-progress"><progress id="progress" max="100" value="0" aria-label="전체 압축 진행률"></progress><p id="status" role="status" aria-live="polite">압축할 준비가 되었습니다.</p></div><div class="action-row"><span>원본 파일은 안전하게 보존됩니다.</span><div><button id="cancel" class="secondary" type="button" hidden>취소</button><button id="start" class="primary" type="button">압축 시작 <span aria-hidden="true">→</span></button></div></div></section>
+    </section>
+    <section class="benefits" aria-label="이용 안내"><article><span>01 / PRIVATE</span><h3>내 파일은 내 기기에</h3><p>선택한 오디오는 서버로 전송되지 않습니다. 압축은 브라우저 안에서 이루어집니다.</p></article><article><span>02 / SIMPLE</span><h3>설치 없이 바로</h3><p>파일을 고르고 압축 버튼만 누르세요. 완료된 파일은 각각 다운로드할 수 있습니다.</p></article><article><span>03 / LIGHT</span><h3>필요한 만큼 가볍게</h3><p>48kbps는 10분에 약 3.6MB입니다. 앨범 사진과 태그를 제거해 용량을 더 줄입니다.</p></article></section>
+    <details><summary>사용 전에 알아두세요</summary><p>48kbps는 음질을 정하는 비트레이트이며 파일 전체를 48KB로 만드는 설정은 아닙니다. 원본이 이미 작으면 변환 파일을 저장하지 않습니다. 압축 중에는 이 탭을 열어 두세요. 페이지를 닫거나 새로고침하면 파일 목록과 결과가 사라집니다.</p><p>최신 Chrome, Edge, Firefox, Safari를 권장합니다. 긴 파일은 메모리를 많이 사용하며 휴대폰에서는 처리 한계가 더 낮을 수 있습니다. 문제가 생기면 짧은 파일로 나누거나 PC에서 사용해 주세요.</p></details>
+  </main>
+  <footer><span>MP3 가볍게 <b>·</b> 작은 파일, 편한 공유</span><a href="./vendor/NOTICE.txt">오픈소스 안내</a></footer>
+  <template id="file-template"><li class="file-row"><span class="file-icon" aria-hidden="true">♫</span><div class="file-info"><strong class="file-name"></strong><span class="file-meta"></span><span class="file-status"></span></div><a class="download" hidden>다운로드 ↓</a><button class="remove" type="button">×</button></li></template>
+</body>
+</html>
