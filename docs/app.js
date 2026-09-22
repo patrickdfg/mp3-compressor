@@ -5,7 +5,8 @@ let running = false;
 let cancelled = false;
 let activeWorker = null;
 let rejectEncoding = null;
-const limit = 50 * 1024 * 1024;
+const limit = 200 * 1024 * 1024;
+const durationLimit = 3 * 60 * 60;
 const formatSize = (bytes) => bytes < 1024 * 1024 ? `${(bytes / 1024).toFixed(1)} KB` : `${(bytes / 1024 / 1024).toFixed(2)} MB`;
 const pending = () => items.filter(item => !['done','skipped'].includes(item.state));
 
@@ -33,7 +34,7 @@ function addFiles(files) {
   const errors = [];
   for (const file of files) {
     if (!/\.mp3$/i.test(file.name)) { errors.push(`${file.name}: MP3 파일만 선택할 수 있습니다.`); continue; }
-    if (!file.size || file.size > limit) { errors.push(`${file.name}: 0바이트 초과, 50MB 이하 파일을 선택해 주세요.`); continue; }
+    if (!file.size || file.size > limit) { errors.push(`${file.name}: 0바이트 초과, 200MB 이하 파일을 선택해 주세요.`); continue; }
     if (items.some(item => item.file.name === file.name && item.file.size === file.size && item.file.lastModified === file.lastModified)) continue;
     const row = $('file-template').content.firstElementChild.cloneNode(true);
     const item = {file, row, state:'ready', message:'대기 중', url:null};
@@ -50,7 +51,23 @@ function addFiles(files) {
   $('progress').value = 0;
   updateControls();
 }
-function encode(channels, bitrate, mono, onProgress) {
+// 부동소수점 샘플을 16비트로 미리 바꾼다. 워커에서 바꾸면 긴 파일의 메모리가 두 배로 든다.
+const quantize = (value) => {
+  const clamped = Math.max(-1, Math.min(1, value));
+  return Math.round(clamped * (clamped < 0 ? 32768 : 32767));
+};
+function toPcm(source, mono) {
+  const length = source[0].length;
+  const downmix = mono && source.length > 1;
+  const count = downmix ? 1 : source.length;
+  const channels = Array.from({length:count}, () => new Int16Array(length));
+  for (let i = 0; i < length; i++) {
+    if (downmix) channels[0][i] = quantize((source[0][i] + source[1][i]) / 2);
+    else for (let channel = 0; channel < count; channel++) channels[channel][i] = quantize(source[channel][i]);
+  }
+  return channels;
+}
+function encode(channels, bitrate, onProgress) {
   return new Promise((resolve, reject) => {
     const worker = new Worker('./encoder-worker.js');
     activeWorker = worker;
@@ -61,7 +78,7 @@ function encode(channels, bitrate, mono, onProgress) {
       if (data.type === 'error') reject(new Error(data.message));
     };
     worker.onerror = () => reject(new Error('압축기를 실행할 수 없습니다. 페이지를 새로고침한 뒤 다시 시도해 주세요.'));
-    worker.postMessage({channels, sampleRate:24000, bitrate, mono}, channels.map(channel => channel.buffer));
+    worker.postMessage({channels, sampleRate:24000, bitrate}, channels.map(channel => channel.buffer));
   }).finally(() => { activeWorker?.terminate(); activeWorker = null; rejectEncoding = null; });
 }
 function uniqueName(original, bitrate) {
@@ -93,10 +110,10 @@ async function start() {
         try { decoded = await decoder.decodeAudioData(await item.file.arrayBuffer()); }
         catch { throw new Error('MP3를 읽을 수 없습니다. 손상되었거나 지원하지 않는 파일입니다.'); }
         if (cancelled) throw new Error('cancelled');
-        if (decoded.duration > 1800) throw new Error('30분 이하 파일을 선택해 주세요. 긴 파일은 PC 프로그램을 이용할 수 있습니다.');
-        const channels = Array.from({length:Math.min(2, decoded.numberOfChannels)}, (_, channel) => new Float32Array(decoded.getChannelData(channel)));
+        if (decoded.duration > durationLimit) throw new Error('3시간 이하 파일을 선택해 주세요. 긴 파일은 PC 프로그램을 이용할 수 있습니다.');
+        const channels = toPcm(Array.from({length:Math.min(2, decoded.numberOfChannels)}, (_, channel) => decoded.getChannelData(channel)), mono);
         decoded = null;
-        const blob = await encode(channels, bitrate, mono, value => {
+        const blob = await encode(channels, bitrate, value => {
           item.message = `압축 중 ${value}%`; updateRow(item);
           $('progress').value = (index + value / 100) / batch.length * 100;
         });

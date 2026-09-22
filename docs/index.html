@@ -20,7 +20,7 @@
     <section class="workspace" aria-label="MP3 압축 도구">
       <div class="workspace-heading"><h2>파일 압축하기</h2><span>01 선택 <b>→</b> 02 압축 <b>→</b> 03 다운로드</span></div>
       <div id="drop-zone" class="drop-zone">
-        <div class="upload-icon" aria-hidden="true">↥</div><h3>MP3 파일을 여기에 놓으세요</h3><p>여러 파일을 한 번에 선택할 수 있어요</p><button id="choose" class="primary" type="button">MP3 파일 선택 <span aria-hidden="true">＋</span></button><input id="file-input" type="file" accept=".mp3,audio/mpeg" multiple hidden><small>MP3 · 파일당 최대 50MB · 최대 30분</small>
+        <div class="upload-icon" aria-hidden="true">↥</div><h3>MP3 파일을 여기에 놓으세요</h3><p>여러 파일을 한 번에 선택할 수 있어요</p><button id="choose" class="primary" type="button">MP3 파일 선택 <span aria-hidden="true">＋</span></button><input id="file-input" type="file" accept=".mp3,audio/mpeg" multiple hidden><small>MP3 · 파일당 최대 200MB · 최대 3시간</small>
       </div>
       <div class="options"><div><label for="bitrate">압축 음질</label><select id="bitrate"><option value="32">32 kbps · 최소 용량</option><option value="48" selected>48 kbps · 음성 추천</option><option value="64">64 kbps</option><option value="96">96 kbps</option><option value="128">128 kbps · 높은 음질</option></select></div><div><label for="channels">오디오 채널</label><select id="channels"><option value="1">모노 · 음성용</option><option value="2">스테레오 · 음악용</option></select></div><p id="estimate">48kbps 기준<br><strong>1분 ≈ 360KB</strong></p></div>
       <div id="notice" role="alert" hidden></div>
