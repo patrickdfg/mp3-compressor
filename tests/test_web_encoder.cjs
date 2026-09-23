@@ -18,8 +18,13 @@ for (const mono of [true,false]) {
       context.importScripts = name => vm.runInContext(readFileSync(join(docs, name),'utf8'),context);
       vm.runInContext(readFileSync(join(docs,'encoder-worker.js'),'utf8'),context);
       const rate = 24000;
-      const channels = [440,880].map(frequency => Float32Array.from({length:rate*3}, (_, i) => .3*Math.sin(2*Math.PI*frequency*i/rate)));
-      context.self.onmessage({data:{channels,sampleRate:rate,bitrate:48,mono}});
+      // The page quantizes and downmixes before posting, so the test feeds the worker the same Int16 channels.
+      const quantize = value => Math.round(Math.max(-1, Math.min(1, value)) * (value < 0 ? 32768 : 32767));
+      const source = [440,880].map(frequency => Float32Array.from({length:rate*3}, (_, i) => .3*Math.sin(2*Math.PI*frequency*i/rate)));
+      const channels = mono
+        ? [Int16Array.from(source[0], (value, i) => quantize((value + source[1][i]) / 2))]
+        : source.map(channel => Int16Array.from(channel, quantize));
+      context.self.onmessage({data:{channels,sampleRate:rate,bitrate:48}});
       const result = messages.at(-1);
       assert.equal(result.type,'done',JSON.stringify(result));
       const file = join(folder,'encoded.mp3');
